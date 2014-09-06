@@ -4,21 +4,27 @@ import com.minecreatr.mcocore.ClassInitializationException;
 import com.minecreatr.mcocore.MCOCore;
 import com.minecreatr.mcocore.command.CommandLoader;
 import com.minecreatr.trails.command.CommandTrails;
+import com.minecreatr.trails.command.CommandTrailsGui;
 import com.minecreatr.trails.trail.Trail;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created on 9/2/2014
@@ -29,6 +35,8 @@ public class Trails extends JavaPlugin implements Listener {
     public static final String prefix = "["+ ChatColor.RED+"Trails"+ChatColor.RESET+"] "+ChatColor.BLUE;
     public static HashMap<String, Trail> registeredTrails = new HashMap<String, Trail>();
     public static HashMap<UUID, Integer> crackedIds = new HashMap<UUID, Integer>();
+    public static final String trailInventoryName = ChatColor.AQUA+"Trails";
+    public static final String trailsKey = ChatColor.BLUE+""+ChatColor.ITALIC+"Trail";
     private CommandLoader loader;
     Random random = new Random();
 
@@ -37,6 +45,7 @@ public class Trails extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         loader = new CommandLoader(this);
         loader.registerCommand(new CommandTrails());
+        loader.registerCommand(new CommandTrailsGui());
         Trail.registerTrails(registeredTrails);
     }
 
@@ -45,27 +54,110 @@ public class Trails extends JavaPlugin implements Listener {
         if (effects.containsKey(event.getPlayer().getUniqueId())){
             Player player = event.getPlayer();
             Location loc = player.getLocation();
-            Iterator<? extends Player> players = this.getServer().getOnlinePlayers().iterator();
-            while (players.hasNext()){
-                Player curPlayer = players.next();
-                if (curPlayer.getWorld().getName().equals(player.getWorld().getName())){
-                    if (effects.get(player.getUniqueId())==Trail.crack){
-                        if (crackedIds.containsKey(player.getUniqueId())){
-                            if (crackedIds.get(player.getUniqueId())!=0){
+            for (Player curPlayer : getServer().getOnlinePlayers()){
+                if (player.getWorld().equals(curPlayer.getWorld())) {
+                    if (effects.get(player.getUniqueId()) == Trail.crack) {
+                        if (crackedIds.containsKey(player.getUniqueId())) {
+                            if (crackedIds.get(player.getUniqueId()) != 0) {
                                 ParticleEffects.sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()));
-                                return;
                             }
                         }
+                    } else {
+                        effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
                     }
-                    effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
-                    return;
                 }
             }
+//            while (players.hasNext()){
+//                Player curPlayer = players.next();
+//                if (curPlayer.getWorld().getName().equals(player.getWorld().getName())){
+//                    if (effects.get(player.getUniqueId())==Trail.crack){
+//                        if (crackedIds.containsKey(player.getUniqueId())){
+//                            if (crackedIds.get(player.getUniqueId())!=0){
+//                                ParticleEffects.sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()));
+//                                return;
+//                            }
+//                        }
+//                    }
+//                    effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
+//                    return;
+//                }
+//            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event){
         effects.remove(event.getPlayer().getUniqueId());
+    }
+
+    public static void openTrailsGui(Player player){
+        player.sendMessage(prefix+"Opening trails gui...");
+        Inventory inv = Bukkit.createInventory(null, 27, trailInventoryName);
+
+        inv.addItem(gti(Trail.star, Material.NETHER_STAR));
+        inv.addItem(gti(Trail.spark, Material.FIREWORK));
+        inv.addItem(gti(Trail.music, Material.NOTE_BLOCK));
+        inv.addItem(gti(Trail.happy, Material.EMERALD));
+        inv.addItem(gti(Trail.lava, Material.LAVA_BUCKET));
+        inv.addItem(gti(Trail.ash, Material.INK_SACK, (short)8));
+        inv.addItem(gti(Trail.water, Material.WATER_BUCKET));
+        inv.addItem(gti(Trail.magic, Material.BREWING_STAND_ITEM));
+        inv.addItem(gti(Trail.love, Material.INK_SACK, (short)1));
+        inv.addItem(gti(Trail.dust, Material.REDSTONE));
+        inv.addItem(gti(Trail.slime, Material.SLIME_BALL));
+        inv.addItem(gti(Trail.ender, Material.EYE_OF_ENDER));
+        inv.addItem(gti(Trail.knowledge, Material.ENCHANTMENT_TABLE));
+        inv.addItem(gti(Trail.step, Material.GRAVEL));
+        inv.addItem(gti(Trail.voidTrail, Material.ENDER_PORTAL));
+        inv.addItem(gti(Trail.potion, Material.GLOWSTONE_DUST));
+        inv.addItem(gti(Trail.pop, Material.TNT));
+        inv.addItem(gti(Trail.splash, Material.WATER_LILY));
+        inv.addItem(gti(Trail.smoke, Material.INK_SACK, (short)7));
+        inv.addItem(gti(Trail.snow, Material.SNOW_BALL));
+        inv.addItem(gti(Trail.flame, Material.FIRE));
+        inv.addItem(gti(Trail.angry, Material.REDSTONE_TORCH_ON));
+
+
+        player.openInventory(inv);
+    }
+
+    //Generate Trail Item
+    public static ItemStack gti(Trail trail, Material material){
+        ItemStack stack = new ItemStack(material);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE+StringUtils.capitalize(trail.getName()));
+        List<String> lore = new ArrayList<String>();
+        lore.add(trailsKey);
+        meta.setLore(lore);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    //Generate Trail Item
+    public static ItemStack gti(Trail trail, Material material, short d){
+        ItemStack stack = new ItemStack(material, 1, d);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE+StringUtils.capitalize(trail.getName()));
+        List<String> lore = new ArrayList<String>();
+        lore.add(trailsKey);
+        meta.setLore(lore);
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event){
+        if (event.getInventory().getName().equals(trailInventoryName)){
+            if (event.getCurrentItem().getItemMeta()!=null) {
+                if (event.getCurrentItem().getItemMeta().getLore().contains(trailsKey)) {
+                    HumanEntity entity = event.getWhoClicked();
+                    if (entity instanceof Player) {
+                        Bukkit.getServer().dispatchCommand((Player) entity, "trail " + ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName().toLowerCase()));
+                        event.getWhoClicked().closeInventory();
+                    }
+                }
+            }
+            event.setCancelled(true);
+        }
     }
 }

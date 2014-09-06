@@ -21,7 +21,7 @@ import java.util.List;
 public class CommandTrails extends AbstractCommand{
 
     public CommandTrails(){
-        super("trails", "trails.trails", Trails.prefix+ "You dont have permission to use trails!");
+        super("trail", "trails.trail", Trails.prefix+ "You dont have permission to use trails!");
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
