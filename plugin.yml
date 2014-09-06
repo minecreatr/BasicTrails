@@ -1,0 +1,5 @@
+name: Trails
+main: com.minecreatr.trails.Trails
+version: 0.0.1a
+author: minecreatr
+depend: [MCOCore]
