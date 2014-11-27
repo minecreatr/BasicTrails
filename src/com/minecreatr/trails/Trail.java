@@ -1,7 +1,4 @@
-package com.minecreatr.trails.trail;
-
-import com.minecreatr.trails.ParticleEffects;
-import com.minecreatr.trails.Trails;
+package com.minecreatr.trails;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +10,7 @@ import java.util.HashMap;
  */
 public class Trail {
 
-    public static final Trail star = rt(new Trail(ParticleEffects.MAGIC_CRIT, "star"));
+    public static final Trail star = rt(new Trail(ParticleEffects.MAGIC_CRIT, "star"));;
     public static final Trail spark = rt(new Trail(ParticleEffects.FIREWORKS_SPARK, "spark"));
     public static final Trail music = rt(new Trail(ParticleEffects.NOTE, "music"));
     public static final Trail happy = rt(new Trail(ParticleEffects.HAPPY_VILLAGER, "happy"));
@@ -37,7 +34,8 @@ public class Trail {
     public static final Trail angry = rt(new Trail(ParticleEffects.ANGRY_VILLAGER, "angry"));
     public static final Trail crack = rt(new Trail(ParticleEffects.CRACK, "crack"));
 
-    //public static final Trail guardian = rt(new Trail(ParticleEffects.GUARDIAN, "guardian"));
+
+        //public static final Trail guardian = rt(new Trail(ParticleEffects.GUARDIAN, "guardian"));
     private static ArrayList<Trail> toRegister;
 
 

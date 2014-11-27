@@ -1,11 +1,8 @@
 package com.minecreatr.trails;
 
-import com.minecreatr.mcocore.ClassInitializationException;
-import com.minecreatr.mcocore.MCOCore;
-import com.minecreatr.mcocore.command.CommandLoader;
+import com.minecreatr.trails.command.CommandLoader;
 import com.minecreatr.trails.command.CommandTrails;
 import com.minecreatr.trails.command.CommandTrailsGui;
-import com.minecreatr.trails.trail.Trail;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -37,17 +36,46 @@ public class Trails extends JavaPlugin implements Listener {
     public static HashMap<UUID, Integer> crackedIds = new HashMap<UUID, Integer>();
     public static final String trailInventoryName = ChatColor.AQUA+"Trails";
     public static final String trailsKey = ChatColor.BLUE+""+ChatColor.ITALIC+"Trail";
+    public static boolean perTrailPerm;
+    public static final int max_distance = 160;
     private CommandLoader loader;
     Random random = new Random();
 
     @Override
     public void onEnable(){
+        reloadConfig();
         getServer().getPluginManager().registerEvents(this, this);
         loader = new CommandLoader(this);
         loader.registerCommand(new CommandTrails());
         loader.registerCommand(new CommandTrailsGui());
         Trail.registerTrails(registeredTrails);
+        if (!getConfigFile().exists()){
+            getConfig().set("perTrailPerm", false);
+            saveConfig();
+        }
+        if (getConfig().contains("perTrailPerm")){
+            perTrailPerm=getConfig().getBoolean("perTrailPerm");
+        }
+        else {
+            perTrailPerm=false;
+        }
     }
+
+    public File getConfigFile() {
+        try {
+            Field field = JavaPlugin.class.getDeclaredField("configFile");
+            field.setAccessible(true);
+            return (File)field.get(this);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            getLogger().severe("Error getting config file!");
+            return null;
+        }
+    }
+    @Override
+    public void onDisable(){
+    }
+
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onMove(PlayerMoveEvent event){
@@ -56,14 +84,16 @@ public class Trails extends JavaPlugin implements Listener {
             Location loc = player.getLocation();
             for (Player curPlayer : getServer().getOnlinePlayers()){
                 if (player.getWorld().equals(curPlayer.getWorld())) {
-                    if (effects.get(player.getUniqueId()) == Trail.crack) {
-                        if (crackedIds.containsKey(player.getUniqueId())) {
-                            if (crackedIds.get(player.getUniqueId()) != 0) {
-                                ParticleEffects.sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()));
+                    if (getDistance(loc, curPlayer.getLocation())<=max_distance) {
+                        if (effects.get(player.getUniqueId()) == Trail.crack) {
+                            if (crackedIds.containsKey(player.getUniqueId())) {
+                                if (crackedIds.get(player.getUniqueId()) != 0) {
+                                    ParticleEffects.sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()), 0);
+                                }
                             }
+                        } else {
+                            effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
                         }
-                    } else {
-                        effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
                     }
                 }
             }
@@ -83,6 +113,14 @@ public class Trails extends JavaPlugin implements Listener {
 //                }
 //            }
         }
+    }
+
+    public static int getDistance(Location loc1, Location loc2){
+        return (int)Math.round(Math.sqrt(sqr(loc1.getBlockX()-loc2.getBlockX())+sqr(loc1.getBlockY()-loc2.getBlockY())+sqr(loc1.getBlockZ()-loc2.getBlockZ())));
+    }
+
+    private static int sqr(int num){
+        return num*num;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

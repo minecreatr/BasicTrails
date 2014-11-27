@@ -1,7 +1,7 @@
 package com.minecreatr.trails.command;
 
-import com.minecreatr.mcocore.command.AbstractCommand;
 import com.minecreatr.trails.Trails;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

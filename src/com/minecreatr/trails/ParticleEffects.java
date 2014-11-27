@@ -1,6 +1,5 @@
 package com.minecreatr.trails;
 
-import com.minecreatr.mcocore.ReflectionHelper;
 import net.minecraft.server.v1_7_R4.PacketPlayOutWorldParticles;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
@@ -66,9 +65,9 @@ public enum ParticleEffects {
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
-    public static void sendBlockBreakToPlayer(Player player, Location location, float offsetX, float offsetY, float offsetZ, float speed, int count, int id){
+    public static void sendBlockBreakToPlayer(Player player, Location location, float offsetX, float offsetY, float offsetZ, float speed, int count, int id, int data){
         PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles();
-        String n = "blockcrack_"+id;
+        String n = "blockcrack_"+id+"_"+data;
         ReflectionHelper.setValue(packet, "a", n);
         ReflectionHelper.setValue(packet, "b", (float) location.getX());
         ReflectionHelper.setValue(packet, "c", (float) location.getY());

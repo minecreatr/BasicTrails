@@ -1,18 +1,13 @@
 package com.minecreatr.trails.command;
 
 
-import com.minecreatr.mcocore.MCOCore;
-import com.minecreatr.mcocore.command.AbstractCommand;
-import com.minecreatr.trails.ParticleEffects;
 import com.minecreatr.trails.Trails;
-import com.minecreatr.trails.trail.Trail;
-import org.bukkit.ChatColor;
+import com.minecreatr.trails.Trail;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,19 +16,35 @@ import java.util.List;
 public class CommandTrails extends AbstractCommand{
 
     public CommandTrails(){
-        super("trail", "trails.trail", Trails.prefix+ "You dont have permission to use trails!");
+        super("trail");
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (args.length < 1) {
-                player.sendMessage(Trails.prefix+"The correct use is /trails <trail>");
+            if (!player.hasPermission("trails.trail")&&!Trails.perTrailPerm){
+                player.sendMessage(Trails.prefix+ "You dont have permission to use trails!");
                 return true;
+            }
+            if (args.length < 1) {
+                player.sendMessage(Trails.prefix+"The correct use is /trail <trail>");
+                return true;
+            }
+            if (Trails.perTrailPerm){
+                String trail = args[0];
+                if (Trails.registeredTrails.containsKey(trail)){
+                    if (!player.hasPermission("trails."+trail) && Trails.perTrailPerm){
+                        player.sendMessage(Trails.prefix+"You dont have permission to use the trail "+trail+"!");
+                        return true;
+                    }
+                }
+                else if (!trail.equalsIgnoreCase("clear")){
+                    player.sendMessage(Trails.prefix+"No Trail with the name " + args[0]);
+                }
             }
             if (args[0].equals("crack")){
                 if (args.length<2){
-                    player.sendMessage(Trails.prefix+"The correct use is /trails crack <block id>");
+                    player.sendMessage(Trails.prefix+"The correct use is /trail crack <block id>");
                     return true;
                 }
                 int id;
@@ -49,7 +60,7 @@ public class CommandTrails extends AbstractCommand{
                 }
                 Trails.effects.put(player.getUniqueId(), Trail.crack);
                 Trails.crackedIds.put(player.getUniqueId(), id);
-                player.sendMessage(Trails.prefix+"Enabled crack trail with block id "+args[1]+" , do /trails clear to clear");
+                player.sendMessage(Trails.prefix+"Enabled crack trail with block id "+args[1]+" , do /trail clear to clear");
                 return true;
             }
             if (args[0].equalsIgnoreCase("clear")) {
@@ -67,8 +78,8 @@ public class CommandTrails extends AbstractCommand{
                 Trails.effects.put(player.getUniqueId(), Trails.registeredTrails.get(args[0]));
                 player.sendMessage(Trails.prefix+"Activated " + args[0] + " trail");
                 return true;
-            } else {
-                player.sendMessage(Trails.prefix+"No Trail with the name " + args[0]);
+            }
+            else {
                 return true;
             }
         }
@@ -86,11 +97,22 @@ public class CommandTrails extends AbstractCommand{
             }
             List<String> l = super.toList(Trails.registeredTrails.keySet());
             l.add("clear");
-            return MCOCore.filterStartsWith(l, args[0]);
+            return filterStartsWith(l, args[0]);
         }
         else {
             return null;
         }
+    }
+
+    //returns a list of only string that start with the filter
+    public static List<String> filterStartsWith(List<String> in, String filter){
+        List<String> out = new ArrayList<String>();
+        for (int i=0;i<in.size();i++){
+            if (in.get(i).startsWith(filter)){
+                out.add(in.get(i));
+            }
+        }
+        return out;
     }
 
 
