@@ -18,13 +18,16 @@ public class CommandTrailsGui extends AbstractCommand{
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-        if (sender instanceof Player){
+        if ((sender instanceof Player && sender.hasPermission("trails.trail"))){
             Trails.openTrailsGui((Player)sender);
             return true;
         }
         else {
-            sender.sendMessage(Trails.prefix+"Sender must be player!");
-            return true;
+        	if(!(sender instanceof Player))
+        		sender.sendMessage(Trails.prefix+"Sender must be player!");
+            if((sender instanceof Player && !(sender.hasPermission("trails.trail"))))
+            	sender.sendMessage(Trails.prefix+"You dont have permission to use trails!");
+        	return true;
         }
     }
 }
