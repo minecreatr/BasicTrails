@@ -52,31 +52,15 @@ public enum ParticleEffects {
     }
 
     public void sendToPlayer(Player player, Location location, float offsetX, float offsetY, float offsetZ, float speed, int count) {
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles();
-        ReflectionHelper.setValue(packet, "a", particleName);
-        ReflectionHelper.setValue(packet, "b", (float) location.getX());
-        ReflectionHelper.setValue(packet, "c", (float) location.getY());
-        ReflectionHelper.setValue(packet, "d", (float) location.getZ());
-        ReflectionHelper.setValue(packet, "e", offsetX);
-        ReflectionHelper.setValue(packet, "f", offsetY);
-        ReflectionHelper.setValue(packet, "g", offsetZ);
-        ReflectionHelper.setValue(packet, "h", speed);
-        ReflectionHelper.setValue(packet, "i", count);
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(particleName, (float)location.getX(), (float)location.getY(), (float)location.getZ(),
+                offsetX, offsetY, offsetZ, speed, count);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
     public static void sendBlockBreakToPlayer(Player player, Location location, float offsetX, float offsetY, float offsetZ, float speed, int count, int id, int data){
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles();
         String n = "blockcrack_"+id+"_"+data;
-        ReflectionHelper.setValue(packet, "a", n);
-        ReflectionHelper.setValue(packet, "b", (float) location.getX());
-        ReflectionHelper.setValue(packet, "c", (float) location.getY());
-        ReflectionHelper.setValue(packet, "d", (float) location.getZ());
-        ReflectionHelper.setValue(packet, "e", offsetX);
-        ReflectionHelper.setValue(packet, "f", offsetY);
-        ReflectionHelper.setValue(packet, "g", offsetZ);
-        ReflectionHelper.setValue(packet, "h", speed);
-        ReflectionHelper.setValue(packet, "i", count);
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(n, (float)location.getX(), (float)location.getY(), (float)location.getZ(),
+                offsetX, offsetY, offsetZ, speed, count);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
