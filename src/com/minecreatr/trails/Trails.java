@@ -3,11 +3,15 @@ package com.minecreatr.trails;
 import com.minecreatr.trails.command.CommandLoader;
 import com.minecreatr.trails.command.CommandTrails;
 import com.minecreatr.trails.command.CommandTrailsGui;
+import net.minecraft.server.v1_8_R1.EnumParticle;
+import net.minecraft.server.v1_8_R1.PacketPlayOutWorldParticles;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -76,23 +81,44 @@ public class Trails extends JavaPlugin implements Listener {
     public void onDisable(){
     }
 
+    //To get around ide bug :P
+    public static Player[] getOnlinePlayers(){
+        try {
+            Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
+            m.setAccessible(true);
+            return (Player[])m.invoke(null);
+        } catch (Exception exception){
+            return new Player[0];
+        }
+    }
+
+    //Gets all online players as a string list
+    public static List<String> getOnlinePlayersAsStrings(){
+        Player[] players = getOnlinePlayers();
+        List<String> list = new ArrayList<String>();
+        for (Player player : players){
+            list.add(player.getName());
+        }
+        return list;
+    }
+
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onMove(PlayerMoveEvent event){
         if (effects.containsKey(event.getPlayer().getUniqueId())){
             Player player = event.getPlayer();
             Location loc = player.getLocation();
-            for (Player curPlayer : getServer().getOnlinePlayers()){
+            for (Player curPlayer : getOnlinePlayers()){
                 if (player.getWorld().equals(curPlayer.getWorld())) {
                     if (getDistance(loc, curPlayer.getLocation())<=max_distance) {
                         if (effects.get(player.getUniqueId()) == Trail.crack) {
                             if (crackedIds.containsKey(player.getUniqueId())) {
                                 if (crackedIds.get(player.getUniqueId()) != 0) {
-                                    ParticleEffects.sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()), 0);
+                                    sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()), 0);
                                 }
                             }
                         } else {
-                            effects.get(player.getUniqueId()).getEffect().sendToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
+                            sendToPlayer(effects.get(player.getUniqueId()).getEffect(),curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
                         }
                     }
                 }
@@ -145,6 +171,7 @@ public class Trails extends JavaPlugin implements Listener {
         inv.addItem(gti(Trail.slime, Material.SLIME_BALL));
         inv.addItem(gti(Trail.ender, Material.EYE_OF_ENDER));
         inv.addItem(gti(Trail.knowledge, Material.ENCHANTMENT_TABLE));
+        inv.addItem(gti(Trail.barrier, Material.BARRIER));
         inv.addItem(gti(Trail.step, Material.GRAVEL));
         inv.addItem(gti(Trail.voidTrail, Material.ENDER_PORTAL));
         inv.addItem(gti(Trail.potion, Material.GLOWSTONE_DUST));
@@ -154,6 +181,13 @@ public class Trails extends JavaPlugin implements Listener {
         inv.addItem(gti(Trail.snow, Material.SNOW_BALL));
         inv.addItem(gti(Trail.flame, Material.FIRE));
         inv.addItem(gti(Trail.angry, Material.REDSTONE_TORCH_ON));
+        inv.addItem(gti(Trail.cloud, Material.WOOL));
+        ItemStack clearStack = new ItemStack(Material.BARRIER);
+        ItemMeta clearMeta = clearStack.getItemMeta();
+        clearMeta.setDisplayName(ChatColor.RED+"Clear Trail");
+        clearMeta.setLore(Arrays.asList(ChatColor.GRAY+"Cleares your current trail"));
+        clearStack.setItemMeta(clearMeta);
+        inv.setItem(26, clearStack);
 
 
         player.openInventory(inv);
@@ -194,8 +228,27 @@ public class Trails extends JavaPlugin implements Listener {
                         event.getWhoClicked().closeInventory();
                     }
                 }
+                else if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.RED+"Clear Trail")){
+                    HumanEntity entity = event.getWhoClicked();
+                    if (entity instanceof Player) {
+                        Bukkit.getServer().dispatchCommand((Player) entity, "trail clear");
+                        event.getWhoClicked().closeInventory();
+                    }
+                }
             }
             event.setCancelled(true);
         }
+    }
+
+    public static void sendToPlayer(EnumParticle particle, Player player, Location location, float offsetX, float offsetY, float offsetZ, float data, int count) {
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(particle, true, (float)location.getX(), (float)location.getY(), (float)location.getZ(),
+                offsetX, offsetY, offsetZ, data, count);
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    public static void sendBlockBreakToPlayer(Player player, Location location, float offsetX, float offsetY, float offsetZ, float pData, int count, int id, int data){
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(EnumParticle.BLOCK_CRACK, true, (float)location.getX(), (float)location.getY(), (float)location.getZ(),
+                offsetX, offsetY, offsetZ, pData, count, new int[] { id | (data << 12) });
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 }

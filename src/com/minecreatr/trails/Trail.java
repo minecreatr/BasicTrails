@@ -1,5 +1,7 @@
 package com.minecreatr.trails;
 
+import net.minecraft.server.v1_8_R1.EnumParticle;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,29 +12,31 @@ import java.util.HashMap;
  */
 public class Trail {
 
-    public static final Trail star = rt(new Trail(ParticleEffects.MAGIC_CRIT, "star"));;
-    public static final Trail spark = rt(new Trail(ParticleEffects.FIREWORKS_SPARK, "spark"));
-    public static final Trail music = rt(new Trail(ParticleEffects.NOTE, "music"));
-    public static final Trail happy = rt(new Trail(ParticleEffects.HAPPY_VILLAGER, "happy"));
-    public static final Trail lava = rt(new Trail(ParticleEffects.DRIP_LAVA, "lava"));
-    public static final Trail ash = rt(new Trail(ParticleEffects.LAVA, "ash"));
-    public static final Trail water = rt(new Trail(ParticleEffects.DRIP_WATER, "water"));
-    public static final Trail magic = rt(new Trail(ParticleEffects.WITCH_MAGIC, "magic"));
-    public static final Trail love = rt(new Trail(ParticleEffects.HEART, "love"));
-    public static final Trail dust = rt(new Trail(ParticleEffects.RED_DUST, "dust"));
-    public static final Trail slime = rt(new Trail(ParticleEffects.SLIME, "slime"));
-    public static final Trail ender = rt(new Trail(ParticleEffects.PORTAL, "ender"));
-    public static final Trail knowledge = rt(new Trail(ParticleEffects.ENCHANTMENT_TABLE, "knowledge"));
-    public static final Trail step = rt(new Trail(ParticleEffects.FOOTSTEP, "step"));
-    public static final Trail voidTrail = rt(new Trail(ParticleEffects.TOWN_AURA, "void"));
-    public static final Trail potion = rt(new Trail(ParticleEffects.MOB_SPELL, "potion"));
-    public static final Trail pop = rt(new Trail(ParticleEffects.EXPLODE, "pop"));
-    public static final Trail splash = rt(new Trail(ParticleEffects.SPLASH, "splash"));
-    public static final Trail smoke = rt(new Trail(ParticleEffects.LARGE_SMOKE, "smoke"));
-    public static final Trail snow = rt(new Trail(ParticleEffects.SNOWBALL_POOF, "snow"));
-    public static final Trail flame = rt(new Trail(ParticleEffects.FLAME, "flame"));
-    public static final Trail angry = rt(new Trail(ParticleEffects.ANGRY_VILLAGER, "angry"));
-    public static final Trail crack = rt(new Trail(ParticleEffects.CRACK, "crack"));
+    public static final Trail star = rt(new Trail(EnumParticle.CRIT_MAGIC, "star"));;
+    public static final Trail spark = rt(new Trail(EnumParticle.FIREWORKS_SPARK, "spark"));
+    public static final Trail music = rt(new Trail(EnumParticle.NOTE, "music"));
+    public static final Trail happy = rt(new Trail(EnumParticle.VILLAGER_HAPPY, "happy"));
+    public static final Trail lava = rt(new Trail(EnumParticle.DRIP_LAVA, "lava"));
+    public static final Trail ash = rt(new Trail(EnumParticle.LAVA, "ash"));
+    public static final Trail water = rt(new Trail(EnumParticle.DRIP_WATER, "water"));
+    public static final Trail magic = rt(new Trail(EnumParticle.SPELL_WITCH, "magic"));
+    public static final Trail love = rt(new Trail(EnumParticle.HEART, "love"));
+    public static final Trail dust = rt(new Trail(EnumParticle.REDSTONE, "dust"));
+    public static final Trail slime = rt(new Trail(EnumParticle.SLIME, "slime"));
+    public static final Trail ender = rt(new Trail(EnumParticle.PORTAL, "ender"));
+    public static final Trail knowledge = rt(new Trail(EnumParticle.ENCHANTMENT_TABLE, "knowledge"));
+    public static final Trail voidTrail = rt(new Trail(EnumParticle.TOWN_AURA, "void"));
+    public static final Trail step = rt(new Trail(EnumParticle.FOOTSTEP, "step"));
+    public static final Trail potion = rt(new Trail(EnumParticle.SPELL_MOB, "potion"));
+    public static final Trail pop = rt(new Trail(EnumParticle.EXPLOSION_NORMAL, "pop"));
+    public static final Trail splash = rt(new Trail(EnumParticle.WATER_SPLASH, "splash"));
+    public static final Trail smoke = rt(new Trail(EnumParticle.SMOKE_LARGE, "smoke"));
+    public static final Trail snow = rt(new Trail(EnumParticle.SNOWBALL, "snow"));
+    public static final Trail flame = rt(new Trail(EnumParticle.FLAME, "flame"));
+    public static final Trail angry = rt(new Trail(EnumParticle.VILLAGER_ANGRY, "angry"));
+    public static final Trail crack = rt(new Trail(EnumParticle.BLOCK_CRACK, "crack"));
+    public static final Trail cloud = rt(new Trail(EnumParticle.CLOUD, "cloud"));
+    public static final Trail barrier = rt(new Trail(EnumParticle.BARRIER, "barrier"));
 
 
         //public static final Trail guardian = rt(new Trail(ParticleEffects.GUARDIAN, "guardian"));
@@ -47,15 +51,15 @@ public class Trail {
         return trail;
     }
 
-    private ParticleEffects effect;
+    private EnumParticle effect;
     private String name;
 
-    public Trail(ParticleEffects e, String n){
+    public Trail(EnumParticle e, String n){
         this.effect=e;
         name=n;
     }
 
-    public ParticleEffects getEffect(){
+    public EnumParticle getEffect(){
         return this.effect;
     }
 
