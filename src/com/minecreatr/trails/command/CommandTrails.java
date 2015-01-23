@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -128,7 +129,7 @@ public class CommandTrails extends AbstractCommand{
             return filterStartsWith(l, args[0]);
         }
         else if (args.length==2){
-            return Trails.getOnlinePlayersAsStrings();
+            return Trails.getPlayersAsString();
         }
         else {
             return null;

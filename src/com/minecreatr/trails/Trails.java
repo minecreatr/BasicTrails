@@ -81,26 +81,14 @@ public class Trails extends JavaPlugin implements Listener {
     public void onDisable(){
     }
 
-    //To get around ide bug :P
-    public static Player[] getOnlinePlayers(){
-        try {
-            Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
-            m.setAccessible(true);
-            return (Player[])m.invoke(null);
-        } catch (Exception exception){
-            return new Player[0];
+    public static List<String> getPlayersAsString(){
+        List<String> names = new ArrayList<String>();
+        for (Player p : Bukkit.getOnlinePlayers()){
+            names.add(p.getName());
         }
+        return names;
     }
 
-    //Gets all online players as a string list
-    public static List<String> getOnlinePlayersAsStrings(){
-        Player[] players = getOnlinePlayers();
-        List<String> list = new ArrayList<String>();
-        for (Player player : players){
-            list.add(player.getName());
-        }
-        return list;
-    }
 
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -108,17 +96,22 @@ public class Trails extends JavaPlugin implements Listener {
         if (effects.containsKey(event.getPlayer().getUniqueId())){
             Player player = event.getPlayer();
             Location loc = player.getLocation();
-            for (Player curPlayer : getOnlinePlayers()){
+            for (Player curPlayer : Bukkit.getOnlinePlayers()){
                 if (player.getWorld().equals(curPlayer.getWorld())) {
                     if (getDistance(loc, curPlayer.getLocation())<=max_distance) {
-                        if (effects.get(player.getUniqueId()) == Trail.crack) {
+                        Trail trail = effects.get(player.getUniqueId());
+                        if (trail == Trail.crack) {
                             if (crackedIds.containsKey(player.getUniqueId())) {
                                 if (crackedIds.get(player.getUniqueId()) != 0) {
-                                    sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, random.nextInt(16), 5, crackedIds.get(player.getUniqueId()), 0);
+                                    sendBlockBreakToPlayer(curPlayer, loc, 0, 0, 0, 0.1f, 5, crackedIds.get(player.getUniqueId()), 0);
                                 }
                             }
                         } else {
-                            sendToPlayer(effects.get(player.getUniqueId()).getEffect(),curPlayer, loc, 0, 0, 0, random.nextInt(16), 5);
+                            if (trail == Trail.dust||trail==Trail.potion){
+                                sendToPlayer(trail.getEffect(),curPlayer, loc, 0, 0, 0, random.nextInt(), 5);
+                            }
+
+                            sendToPlayer(trail.getEffect(),curPlayer, loc, 0, 0, 0, 0.1f, 5);
                         }
                     }
                 }
