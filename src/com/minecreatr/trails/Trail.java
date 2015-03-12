@@ -1,6 +1,7 @@
 package com.minecreatr.trails;
 
-import net.minecraft.server.v1_8_R1.EnumParticle;
+
+import net.minecraft.server.v1_8_R2.EnumParticle;
 
 import java.util.ArrayList;
 import java.util.HashMap;

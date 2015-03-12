@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
